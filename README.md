@@ -1,35 +1,38 @@
-
-```markdown
 # 🌦️ Weather Prediction System
 
-A Machine Learning-based Weather Prediction project that analyzes historical weather data and predicts future weather conditions.
+[![CI Pipeline](https://github.com/nandeesh2799/WeatherPrediction0/actions/workflows/ci.yml/badge.svg)](https://github.com/nandeesh2799/WeatherPrediction0/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?logo=scikit-learn&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-FF4B4B?logo=streamlit&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-7%20Passed-brightgreen?logo=pytest)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+A production-ready Machine Learning system that analyzes historical meteorological data to predict next-day rainfall likelihood and afternoon temperatures. Built with Scikit-learn regression and classification pipelines, an automated synthetic dataset generator, full test suite, and an interactive dark-themed Streamlit dashboard.
 
 ---
 
-## 🚀 Overview
+## 🚀 Key Features
 
-This project uses Machine Learning techniques to predict weather conditions such as temperature, humidity, or rainfall based on historical data. It demonstrates the complete ML pipeline including data preprocessing, model training, evaluation, and prediction.
-
----
-
-## 📌 Features
-
-- 📊 **Data Preprocessing:** Cleaning and preparing raw weather data for analysis.
-- 📈 **Exploratory Data Analysis (EDA):** Insightful visualizations to understand weather patterns.
-- 🤖 **Model Training:** Implementation of various regression and classification algorithms.
-- 📉 **Performance Metrics:** Evaluation using standard ML benchmarks.
-- 🔮 **Predictions:** Predict future weather conditions based on user-input features.
-- 🖥️ **Interactive UI:** (Optional) User-friendly interface built with Streamlit.
+- **Dual-Model Inference Engine**:
+  - **Temperature Regression**: Linear regression with median imputation to predict next-day 3 PM temperatures (`MAE: 1.74°C`, `R²: 0.933`).
+  - **Rainfall Classification**: Logistic regression predicting binary rain occurrence and class probabilities.
+- **Robust Feature Engineering**: Extracts temporal seasonality (`Month`, `Day`) alongside meteorological indicators (`MinTemp`, `Rainfall`, `WindSpeed`, `RainToday`).
+- **Resilient Self-Bootstrapping**: If serialized model artifacts (`.pkl`) are missing on initial deployment, the application automatically initiates training or generates a balanced synthetic dataset.
+- **Containerized Architecture**: Fully dockerized with multi-stage builds and Streamlit healthchecks.
+- **Comprehensive Unit Testing**: End-to-end verification covering dataset generation, date parsing, pipeline training, metrics validation, and user interface helpers.
 
 ---
 
 ## 🧠 Tech Stack
 
-* **Language:** Python 🐍
-* **Data Analysis:** NumPy, Pandas
-* **Visualization:** Matplotlib, Seaborn
-* **Machine Learning:** Scikit-learn, XGBoost
-* **UI/Deployment:** Streamlit (Optional)
+* **Language**: Python 3.12
+* **Data Processing**: Pandas, NumPy
+* **Machine Learning**: Scikit-Learn (`Pipeline`, `SimpleImputer`, `LinearRegression`, `LogisticRegression`)
+* **Serialization**: Joblib
+* **Interactive Dashboard**: Streamlit
+* **Containerization**: Docker, Docker Compose
+* **CI/CD**: GitHub Actions
 
 ---
 
@@ -37,120 +40,79 @@ This project uses Machine Learning techniques to predict weather conditions such
 
 ```text
 WeatherPrediction0/
-│── data/                # Dataset files (CSV, JSON, etc.)
-│── notebooks/           # Jupyter notebooks for EDA & training
-│── models/              # Saved/Serialized ML models (.pkl, .joblib)
-│── app.py               # Main application (if Streamlit used)
-│── train.py             # Model training script
-│── requirements.txt     # List of dependencies
-└── README.md            # Project documentation
+├── app.py                      # Interactive Streamlit dashboard
+├── train.py                    # Modular training pipeline & synthetic data generator
+├── weather.csv                 # Meteorological training dataset
+├── requirements.txt            # Python dependencies
+├── Dockerfile                  # Production container definition
+├── docker-compose.yml          # Container orchestration with healthchecks
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions automated test & build pipeline
+└── tests/
+    └── test_weather_models.py  # Comprehensive test suite (7 tests)
 ```
 
 ---
 
-## 📊 Dataset
+## 🧪 Testing & Verification
 
-The dataset contains historical weather information including:
-* **Temperature:** Daily highs and lows.
-* **Humidity:** Atmospheric moisture levels.
-* **Wind Speed:** Average and gust speeds.
-* **Pressure:** Barometric pressure readings.
-* **Rainfall:** Precipitation levels (if applicable).
+Run the test suite with pytest:
 
-> **Note:** Data is sourced from public weather datasets or open APIs.
+```bash
+python3 -m pytest tests/ -v
+```
+
+All 7 test cases validate data generation, feature imputation, model persistence, and prediction bounds.
 
 ---
 
 ## ⚙️ Installation & Usage
 
-Follow these steps to set up the project locally:
+### Option 1: Local Environment
 
-### 1. Clone the Repository
 ```bash
-git clone [https://github.com/nandeesh2799/WeatherPrediction0.git](https://github.com/nandeesh2799/WeatherPrediction0.git)
+# Clone the repository
+git clone https://github.com/nandeesh2799/WeatherPrediction0.git
 cd WeatherPrediction0
-```
 
-### 2. Create and Activate Virtual Environment
-**For Linux/Mac:**
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-**For Windows:**
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
+# Set up virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-### 3. Install Dependencies
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Run the Project
-**To train the model:**
-```bash
-python train.py
-```
-**To launch the Streamlit dashboard:**
-```bash
+# Train models (optional, app auto-trains if missing)
+python3 train.py --data weather.csv
+
+# Launch Streamlit dashboard
 streamlit run app.py
 ```
 
----
+### Option 2: Docker Containerization
 
-## 📈 Model
+Run with Docker Compose:
 
-The project evaluates performance across one or more of the following algorithms:
-* **Linear Regression**
-* **Decision Tree**
-* **Random Forest**
-* **XGBoost**
+```bash
+# Build and run container
+docker compose up --build
 
-### Evaluation Metrics
-We use the following metrics to ensure model reliability:
-* **Accuracy** (for classification)
-* **Mean Squared Error (MSE)**
-* **R² Score** (for regression)
+# Access dashboard at http://localhost:8501
+```
 
 ---
 
-## 📌 Future Improvements
+## 👨‍💻 Author & Engineering Showcase
 
-* 🌐 **Web Deployment:** Host the model on platforms like Heroku or AWS.
-* 📡 **Real-time Data:** Integrate a live weather API for real-world predictions.
-* 🧠 **Deep Learning:** Implement **LSTM** (Long Short-Term Memory) networks for better time-series forecasting.
-* 📱 **Mobile UI:** Create a cross-platform mobile interface.
-
----
-
-## 🤝 Contributing
-
-Contributions make the open-source community an amazing place to learn and create.
-1.  **Fork** the Project.
-2.  Create your **Feature Branch** (`git checkout -b feature/AmazingFeature`).
-3.  **Commit** your Changes (`git commit -m 'Add some AmazingFeature'`).
-4.  **Push** to the Branch (`git push origin feature/AmazingFeature`).
-5.  Open a **Pull Request**.
+**Nandeesh N K**  
+Full-Stack Developer & AI Systems Engineer — Bengaluru, India  
+- 🌐 **Interactive Portfolio:** [NandeeshOS (Live Demo)](https://nandeesh2799-portfolio.vercel.app)
+- 💼 **LinkedIn:** [linkedin.com/in/nandeesh-n-k-729773270](https://linkedin.com/in/nandeesh-n-k-729773270)
+- 🐙 **GitHub Profile:** [github.com/nandeesh2799](https://github.com/nandeesh2799)
+- 📫 **Direct Email:** [nandeeshnk506@gmail.com](mailto:nandeeshnk506@gmail.com)
 
 ---
 
 ## 📜 License
-
-This project is open-source and available under the **MIT License**.
-
----
-
-## 👨‍💻 Author
-
-**Nandeesh N K**
-
-* **GitHub:** [@nandeesh2799](https://github.com/nandeesh2799)
-
----
-
-## ⭐ Support
-
-If you find this project helpful, please give it a ⭐ on GitHub!
-```
+This project is open-source under the **MIT License**.

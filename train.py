@@ -112,20 +112,21 @@ def yes_no_to_int(series: pd.Series) -> pd.Series:
     return mapped
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Train weather prediction models.")
-    parser.add_argument(
-        "--data",
-        default="weather.csv",
-        help="Path to CSV dataset (default: weather.csv in project folder).",
-    )
-    args = parser.parse_args()
-
-    data_path = Path(args.data)
+def train_weather_models(
+    data_path: Path | str = "weather.csv",
+    temp_model_out: Path | str = "temp_model.pkl",
+    rain_model_out: Path | str = "rain_model.pkl",
+    seed: int = 42,
+) -> dict[str, float]:
+    """
+    Train and export the temperature regression and rain classification pipelines.
+    Returns dictionary with validation metrics (MAE, R2, Accuracy).
+    """
+    data_path = Path(data_path)
     if not data_path.exists():
         print(f"Dataset not found at '{data_path}'.")
         print("Creating a synthetic dataset so you can run the project end-to-end...")
-        generate_synthetic_weather_csv(data_path, n_rows=3000, seed=42)
+        generate_synthetic_weather_csv(data_path, n_rows=3000, seed=seed)
         print(f"Saved synthetic dataset to: {data_path}")
 
     # Load CSV
@@ -159,7 +160,7 @@ def main() -> None:
     y_reg = reg_df[temp_target]
 
     Xr_train, Xr_test, yr_train, yr_test = train_test_split(
-        X_reg, y_reg, test_size=0.2, random_state=42
+        X_reg, y_reg, test_size=0.2, random_state=seed
     )
 
     temp_model = Pipeline(
@@ -181,7 +182,7 @@ def main() -> None:
             "feature_cols": feature_cols,
             "temp_target": temp_target,
         },
-        "temp_model.pkl",
+        str(temp_model_out),
     )
 
     # ---------- RainTomorrow model (Classification) ----------
@@ -190,7 +191,7 @@ def main() -> None:
     y_cls = cls_df["RainTomorrow"].astype(int)
 
     Xc_train, Xc_test, yc_train, yc_test = train_test_split(
-        X_cls, y_cls, test_size=0.2, random_state=42, stratify=y_cls
+        X_cls, y_cls, test_size=0.2, random_state=seed, stratify=y_cls
     )
 
     rain_model = Pipeline(
@@ -210,7 +211,7 @@ def main() -> None:
             "model": rain_model,
             "feature_cols": feature_cols,
         },
-        "rain_model.pkl",
+        str(rain_model_out),
     )
 
     # Print simple training results so beginners see progress
@@ -219,7 +220,26 @@ def main() -> None:
     print(f"- Regression MAE: {reg_mae:.2f}")
     print(f"- Regression R2:  {reg_r2:.3f}")
     print(f"- RainTomorrow Accuracy: {cls_acc:.3f}")
-    print("Saved: temp_model.pkl, rain_model.pkl")
+    print(f"Saved: {temp_model_out}, {rain_model_out}")
+
+    return {
+        "reg_mae": float(reg_mae),
+        "reg_r2": float(reg_r2),
+        "cls_acc": float(cls_acc),
+        "temp_target": temp_target,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Train weather prediction models.")
+    parser.add_argument(
+        "--data",
+        default="weather.csv",
+        help="Path to CSV dataset (default: weather.csv in project folder).",
+    )
+    args = parser.parse_args()
+
+    train_weather_models(data_path=args.data)
 
 
 if __name__ == "__main__":

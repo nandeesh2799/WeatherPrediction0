@@ -182,14 +182,14 @@ def apply_custom_css() -> None:
 
 
 def load_model_bundle(path: str):
+    """
+    Safely load locally generated scikit-learn model bundles produced by train_weather_models.
+    If the artifact is missing, triggers local model training from verified local dataset.
+    """
     p = Path(path)
     if not p.exists():
-        st.error(
-            f"Missing `{path}`. Please run training first:\n\n"
-            f"- `python train.py --data your_dataset.csv`\n"
-            f"- then `streamlit run app.py`"
-        )
-        st.stop()
+        from train import train_weather_models
+        train_weather_models()
     return joblib.load(p)
 
 
